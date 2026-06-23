@@ -6,7 +6,7 @@ db=$user/telemetry/sql/telemetry_factory.db
 conf=$user/telemetry/conf.json
 nodered=$user/.node-red/flows.json
 
-sudo apt update && sudo apt -y upgrade
+# sudo apt update && sudo apt -y upgrade
 if [ ! -d "$sqldir" ]; then
   mkdir -p $sqldir
   echo "Create Sqlite Directory..."
@@ -95,15 +95,18 @@ else
   echo "Already has Python Directory..."
 fi
 
-if [ ! -f "$conf"]; then
+if [ ! -f "$conf" ]; then
   touch "$conf"
   code=$(cat $HOME/loom/influxdb/device.txt)
-  cat << 'EOJ' >> "$conf"
+  cat << 'EOG' >> "$conf"
+  {
     "code": "$code",
     "circumferance": "-",
-    "gear-ratio": "-",
-  EOJ
+    "gear-ratio": "-"
+  }
+  EOG
 fi
+
 
 #node-red-flow
 #rm -rf "$nodered"
