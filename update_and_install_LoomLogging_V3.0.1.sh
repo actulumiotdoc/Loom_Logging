@@ -6,7 +6,9 @@ db=$user/telemetry/sql/telemetry_factory.db
 conf=$user/telemetry/conf.json
 nodered=$user/.node-red/flows.json
 
-# sudo apt update && sudo apt -y upgrade
+sudo apt update && sudo apt -y upgrade
+npm install better-sqlite3 --prefix  ~/.node-red/
+
 if [ ! -d "$sqldir" ]; then
   mkdir -p $sqldir
   echo "Create Sqlite Directory..."
@@ -24,6 +26,7 @@ if [ ! -d "$sqldir" ]; then
       ntb_meter REAL,
       ota_meter REAL,
       otb_meter REAL,
+      total_wking REAL,
       wking_a REAL,
       wking_b REAL,
       speed_main REAL,
@@ -61,6 +64,36 @@ if [ ! -d "$sqldir" ]; then
   );"
 
   sqlite3 "$db" "
+  CREATE TABLE telemetry_work (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    create_at DATETIME DEFAULT (datetime('now', '+7 hours')),
+    w0 REAL,
+    w1 REAL,
+    w2 REAL,
+    w3 REAL,
+    w4 REAL,
+    w5 REAL,
+    w6 REAL,
+    w7 REAL,
+    w8 REAL,
+    w9 REAL,
+    w10 REAL,
+    w11 REAL,
+    w12 REAL,
+    w13 REAL,
+    w14 REAL,
+    w15 REAL,
+    w16 REAL,
+    w17 REAL,
+    w18 REAL,
+    w19 REAL,
+    w20 REAL,
+    w21 REAL,
+    w22 REAL,
+    w23 REAL
+  );"
+
+  sqlite3 "$db" "
   CREATE TABLE telemetry_could (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     create_at DATETIME DEFAULT (datetime('now', '+7 hours')),
@@ -74,6 +107,7 @@ if [ ! -d "$sqldir" ]; then
     ntb_meter REAL,
     ota_meter REAL,
     otb_meter REAL,
+    total_work REAL,
     work_a INTEGER,
     work_b INTEGER,
     hour_meter REAL,
@@ -98,11 +132,13 @@ fi
 if [ ! -f "$conf" ]; then
   touch "$conf"
   code=$(cat $HOME/loom/influxdb/device.txt)
+  source=$(cat $HOME/loom/source.txt)
   cat << 'EOG' >> "$conf"
   {
     "code": "$code",
-    "circumferance": "-",
-    "gear-ratio": "-"
+    "source": "$source",
+    "circumferance": 0,
+    "gear-ratio": 0
   }
   EOG
 fi
@@ -112,4 +148,4 @@ fi
 #rm -rf "$nodered"
 #cat << 'EON' > "$nodered"
 #  \
-#  EON
+#EON
