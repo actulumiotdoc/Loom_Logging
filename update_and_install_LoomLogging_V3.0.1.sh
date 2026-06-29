@@ -409,7 +409,7 @@ def httpsRequests(payload):
         print(f"!!!Error: {e}")
 
 #httpsResquests()
-  EOQ
+EOQ
   echo "Create Python Directory..."
 else
   echo "Already has Python Directory..."
