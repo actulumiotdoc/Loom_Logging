@@ -480,7 +480,7 @@ cat << 'EON' > "$flows"
     {
         "id": "777823ab3e1fee97",
         "type": "tab",
-        "label": "Logging V3.0.1",
+        "label": "Logging 3.0.1",
         "disabled": false,
         "info": "",
         "env": []
@@ -1280,11 +1280,12 @@ cat << 'EON' > "$flows"
             "a241e24d2a8bd154",
             "b57537dcf374507c",
             "8f882b3c1846c4d2",
-            "c974acb909bd6616"
+            "c974acb909bd6616",
+            "ac29116d0411fcab"
         ],
         "x": 34,
         "y": 239,
-        "w": 612,
+        "w": 692,
         "h": 149.5
     },
     {
@@ -1339,11 +1340,14 @@ cat << 'EON' > "$flows"
             "5f4722c77c0dc26f",
             "321c102f9e2881e8",
             "0d7c4fd373df7634",
-            "ac29116d0411fcab"
+            "b01969b97e9942d1",
+            "ba1c56ef05a9df85",
+            "0596b54c9b02a8a4",
+            "d7ae002593e9c237"
         ],
         "x": 34,
         "y": 399,
-        "w": 552,
+        "w": 692,
         "h": 122
     },
     {
@@ -5350,7 +5354,7 @@ cat << 'EON' > "$flows"
         "z": "777823ab3e1fee97",
         "g": "451150a92cfdb00f",
         "name": "",
-        "x": 540,
+        "x": 600,
         "y": 280,
         "wires": []
     },
@@ -5629,10 +5633,10 @@ cat << 'EON' > "$flows"
         "id": "ac29116d0411fcab",
         "type": "subflow:c9bf91fd5c385f43",
         "z": "777823ab3e1fee97",
-        "g": "b5c344a321b1b503",
+        "g": "451150a92cfdb00f",
         "name": "",
-        "x": 490,
-        "y": 440,
+        "x": 630,
+        "y": 340,
         "wires": []
     },
     {
@@ -5826,6 +5830,112 @@ cat << 'EON' > "$flows"
         "x": 350,
         "y": 440,
         "wires": []
+    },
+    {
+        "id": "ba1c56ef05a9df85",
+        "type": "inject",
+        "z": "777823ab3e1fee97",
+        "g": "b5c344a321b1b503",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "30",
+        "topic": "",
+        "payload": "python3 /home/orangepi/telemetry/py/requests_local.py",
+        "payloadType": "str",
+        "x": 485,
+        "y": 440,
+        "wires": [
+            [
+                "b01969b97e9942d1"
+            ]
+        ],
+        "icon": "node-red/arrow-in.svg",
+        "l": false
+    },
+    {
+        "id": "b01969b97e9942d1",
+        "type": "exec",
+        "z": "777823ab3e1fee97",
+        "g": "b5c344a321b1b503",
+        "command": "",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "winHide": false,
+        "oldrc": false,
+        "name": "py",
+        "x": 570,
+        "y": 460,
+        "wires": [
+            [
+                "d7ae002593e9c237"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "0596b54c9b02a8a4",
+        "type": "inject",
+        "z": "777823ab3e1fee97",
+        "g": "b5c344a321b1b503",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "32",
+        "topic": "",
+        "payload": "python3 /home/orangepi/telemetry/py/requests_cloud.py",
+        "payloadType": "str",
+        "x": 485,
+        "y": 480,
+        "wires": [
+            [
+                "b01969b97e9942d1"
+            ]
+        ],
+        "l": false
+    },
+    {
+        "id": "d7ae002593e9c237",
+        "type": "debug",
+        "z": "777823ab3e1fee97",
+        "g": "b5c344a321b1b503",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 665,
+        "y": 440,
+        "wires": [],
+        "icon": "node-red/comment.svg",
+        "l": false
     }
 ]
 EON
