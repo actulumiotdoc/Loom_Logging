@@ -12,7 +12,8 @@ CREATE TABLE telemetry_log (
   nf INTEGER,
   dou INTEGER,
   spdg REAL,
-  ppm INTEGER
+  ppm INTEGER,
+  pulse INTEGER
   );
 "
 
@@ -4124,6 +4125,8 @@ cat << 'EOF' > $flows
         "color": "#ff5c17",
         "wrapText": false,
         "className": "",
+        "value": "payload",
+        "valueType": "msg",
         "x": 1240,
         "y": 200,
         "wires": []
@@ -4146,6 +4149,8 @@ cat << 'EOF' > $flows
         "color": "#03dede",
         "wrapText": false,
         "className": "",
+        "value": "payload",
+        "valueType": "msg",
         "x": 1240,
         "y": 240,
         "wires": []
@@ -4208,6 +4213,8 @@ cat << 'EOF' > $flows
         "color": "#ff5c17",
         "wrapText": false,
         "className": "",
+        "value": "payload",
+        "valueType": "msg",
         "x": 1230,
         "y": 280,
         "wires": []
@@ -4230,6 +4237,8 @@ cat << 'EOF' > $flows
         "color": "#03dede",
         "wrapText": false,
         "className": "",
+        "value": "payload",
+        "valueType": "msg",
         "x": 1230,
         "y": 320,
         "wires": []
@@ -4382,6 +4391,7 @@ cat << 'EOF' > $flows
         "mobileBreakpoint": "sm",
         "mobileBreakpointType": "defaults",
         "action": "replace",
+        "className": "",
         "x": 830,
         "y": 200,
         "wires": [
@@ -4408,6 +4418,7 @@ cat << 'EOF' > $flows
         "mobileBreakpoint": "sm",
         "mobileBreakpointType": "defaults",
         "action": "replace",
+        "className": "",
         "x": 830,
         "y": 240,
         "wires": [
@@ -4459,7 +4470,7 @@ cat << 'EOF' > $flows
         "type": "function",
         "z": "9f979da7e8a5400d",
         "name": "INSERT",
-        "func": "const db = context.get(\"db\");\nlet startDate = new Date();\nlet stopDate = new Date();\nconst h = Number(global.get(\"config.datetime.hour\"));\nconst result = [];\nconst cen = (global.get(\"config.state.circumferance\") / global.get(\"config.state.gearratio\"));\nconst centimenter = cen / 100;\nif (h >= 8) {\n        // วันนี้ 08:00 → พรุ่งนี้ 08:00\n        stopDate.setDate(stopDate.getDate() + 1);\n} else {\n        // เมื่อวาน 08:00 → วันนี้ 08:00\n        startDate.setDate(startDate.getDate() - 1);\n}\n\nlet start = `${startDate.getFullYear()}-${(startDate.getMonth()+1).toString().padStart(2,'0')}-${startDate.getDate().toString().padStart(2,'0')} 08:00:00`;\nlet stop = `${stopDate.getFullYear()}-${(stopDate.getMonth()+1).toString().padStart(2,'0')}-${stopDate.getDate().toString().padStart(2,'0')} 08:00:00`;\n\ntry {\n        const items = db.prepare(`\n                SELECT * \n                FROM telemetry_log tl\n                WHERE tl.create_at >= ?\n                AND tl.create_at < ?\n                ORDER BY tl.create_at DESC;\n        `).all(start, stop);\n        items.forEach((element,index) => {\n                element.spdp = Math.trunc(parseFloat(element.ppm * centimenter) * 100 ) / 100;\n                result.push(element)\n        });\n    msg.payload = items;\n    return msg;\n} catch (err) {\n    node.error(err);\n}\n",
+        "func": "const db = context.get(\"db\");\nlet startDate = new Date();\nlet stopDate = new Date();\nconst h = Number(global.get(\"config.datetime.hour\"));\nconst result = [];\nconst cen = (global.get(\"config.state.circumferance\") / global.get(\"config.state.gearratio\"));\nconst centimenter = cen / 100;\nnode.warn(centimenter);\nif (h >= 8) {\n        // วันนี้ 08:00 → พรุ่งนี้ 08:00\n        stopDate.setDate(stopDate.getDate() + 1);\n} else {\n        // เมื่อวาน 08:00 → วันนี้ 08:00\n        startDate.setDate(startDate.getDate() - 1);\n}\n\nlet start = `${startDate.getFullYear()}-${(startDate.getMonth()+1).toString().padStart(2,'0')}-${startDate.getDate().toString().padStart(2,'0')} 08:00:00`;\nlet stop = `${stopDate.getFullYear()}-${(stopDate.getMonth()+1).toString().padStart(2,'0')}-${stopDate.getDate().toString().padStart(2,'0')} 08:00:00`;\n\ntry {\n        const items = db.prepare(`\n                SELECT * \n                FROM telemetry_log tl\n                WHERE tl.create_at >= ?\n                AND tl.create_at < ?\n                ORDER BY tl.create_at DESC;\n        `).all(start, stop);\n        items.forEach((element,index) => {\n                element.spdp = Math.trunc(parseFloat(element.ppm * centimenter) * 100 ) / 100;\n                result.push(element)\n        });\n    msg.payload = items;\n    return msg;\n} catch (err) {\n    node.error(err);\n}\n",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
@@ -5992,7 +6003,7 @@ cat << 'EOF' > $flows
         "z": "777823ab3e1fee97",
         "g": "6be6c492a2953951",
         "name": "",
-        "func": "// เอามิลลิวินาทีคูณ 100 ให้ได้รูปแบบสากล จากนั้นนำ 1 นาทีมาหาร (60000 มิลลิวินาที) จะได้จำนวนครั้ง\n// เอาค่าที่ได้มาคูณกับระยะห่างต่อ 1 ฟัน จะได้เป็นเซนติเมตร จากนั้นหาร 100 เพื่อเปลี่ยนหน่วยเป็นเมตร จะได้ค่าเมตรต่อนาทีกลับมา\n\nconst milisec = Number(msg.payload * 100);\nconst grea = global.get(\"config.state.gearratio\");\nconst cir = global.get(\"config.state.circumferance\");\nconst gap = Number((cir / grea).toFixed(2));\nconst milPmin = Math.trunc(parseFloat(60000 / milisec) * 100) / 100;\nconst mpm = Number((milPmin * gap)/ 100).toFixed(2);\nconst parsempm = +mpm != Infinity ? mpm : 0;\nconst parsminPmin = milPmin != Infinity ? milPmin : 0;\n\nglobal.set(\"config.state.plc.spdg\", parsempm);\n\nnode.status({ fill: milisec == 0 ? \"red\" : \"blue\", \nshape: \"dot\", text: `ระยะห่างต่อฟัน:${gap} เวลาต่อฟัน:${milisec} จำนวนฟันต่อนาที:${parsminPmin} เมตรต่อนาที:${parsempm}`});\n\nreturn msg;",
+        "func": "// เอามิลลิวินาทีคูณ 100 ให้ได้รูปแบบสากล จากนั้นนำ 1 นาทีมาหาร (60000 มิลลิวินาที) จะได้จำนวนครั้ง\n// เอาค่าที่ได้มาคูณกับระยะห่างต่อ 1 ฟัน จะได้เป็นเซนติเมตร จากนั้นหาร 100 เพื่อเปลี่ยนหน่วยเป็นเมตร จะได้ค่าเมตรต่อนาทีกลับมา\n\nconst milisec = Number(msg.payload * 100);\nconst grea = global.get(\"config.state.gearratio\");\nconst cir = global.get(\"config.state.circumferance\");\nconst gap = Number((cir / grea).toFixed(2));\nconst milPmin = 60000 / milisec ;\nconst mpm = Number((milPmin * gap)/ 100).toFixed(2);\nconst parsempm = +mpm != Infinity ? mpm : 0;\nconst parsminPmin = milPmin != Infinity ? milPmin : 0;\n\nglobal.set(\"config.state.plc.spdg\", parsempm);\n\nnode.status({ fill: milisec == 0 ? \"red\" : \"blue\", \nshape: \"dot\", text: `ระยะห่างต่อฟัน:${gap} เวลาต่อฟัน:${milisec} จำนวนฟันต่อนาที:${parsminPmin} เมตรต่อนาที:${parsempm}`});\n\nreturn msg;",
         "outputs": 1,
         "timeout": 0,
         "noerr": 0,
